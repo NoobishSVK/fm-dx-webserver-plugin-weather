@@ -347,7 +347,8 @@ function initializeWeatherData(data) {
         $serverInfoContainer.css({
             'text-align': 'center',
             'padding': '0 !important',
-            'width': '100%'
+            'width': '100%',
+			'margin-bottom': '0 !important'
         });
     }
 
