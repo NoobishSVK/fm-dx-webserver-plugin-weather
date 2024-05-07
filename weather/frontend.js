@@ -343,13 +343,7 @@ function initializeWeatherData(data) {
     $serverInfoContainer.removeClass('panel-100').addClass('panel-75').css('padding-left', '20px');
 
 	if ($(window).width() < 768) {
-        // Apply CSS styles to $serverInfoContainer
-        $serverInfoContainer.css({
-            'text-align': 'center',
-            'padding': '0 !important',
-            'width': '100%',
-            'margin-bottom': '0 !important'
-        });
+		$serverInfoContainer.attr('style', 'text-align: center !important; padding: 0 !important; width: 100% !important;margin-bottom: 0 !important');
     }
 
     // Determine if it's day or night
