@@ -348,7 +348,7 @@ function initializeWeatherData(data) {
             'text-align': 'center',
             'padding': '0 !important',
             'width': '100%',
-			'margin-bottom': '0 !important'
+            'margin-bottom': '0 !important'
         });
     }
 
