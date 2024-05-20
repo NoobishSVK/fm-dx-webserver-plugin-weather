@@ -326,7 +326,7 @@ function initializeWeatherData(data) {
             <table class="text-left">
                 <tr>
                     <td class="text-bold" style="padding-right: 20px;">Pressure:</td>
-                    <td>${data.current.surface_pressure} ${data.current_units.surface_pressure} <span class="text-gray text-small">(${data.current.relative_humidity_2m}% humidity)</span></td>
+                    <td>${data.current.pressure_msl} ${data.current_units.pressure_msl} <span class="text-gray text-small">(${data.current.relative_humidity_2m}% humidity)</span></td>
                 </tr>
                 <tr>
                     <td class="text-bold">Wind:</td>
