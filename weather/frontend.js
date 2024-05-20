@@ -7,7 +7,7 @@
 
 const LAT = localStorage.getItem('qthLatitude');
 const LON = localStorage.getItem('qthLongitude');
-const REQUEST_URL = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,relative_humidity_2m,is_day,weather_code,surface_pressure,wind_speed_10m,,wind_direction_10m`;
+const REQUEST_URL = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,relative_humidity_2m,is_day,weather_code,pressure_msl,wind_speed_10m,,wind_direction_10m`;
 const weatherData = {
 	"0": {
 		"day": {
@@ -369,7 +369,7 @@ function initializeWeatherData(data) {
 
 
 function degreesToDirection(degrees) {
-    const directions = ['North', 'North-East', 'East', 'South-East', 'South', 'South-West', 'West', 'North-West'];
+    const directions = ['North', 'North-East', 'East', 'South-East', 'South', 'South-West', 'West', 'North-West', 'North'];
     const index = Math.round((degrees % 360) / 45);
     return directions[index];
 }
