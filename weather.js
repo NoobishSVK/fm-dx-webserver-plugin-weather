@@ -1,7 +1,7 @@
 // Plugin configuration, this is used in the administration when plugins are loaded
 var pluginConfig = {
     name: 'Current weather',
-    version: '1.1',
+    version: '1.2',
     author: 'NoobishSVK',
     frontEndPath: 'weather/frontend.js'
 }
