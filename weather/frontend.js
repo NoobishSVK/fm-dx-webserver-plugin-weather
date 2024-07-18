@@ -319,7 +319,7 @@ function initializeWeatherData(data) {
     let weatherPanel = $(`
     <div class="panel-33 no-bg hide-phone m-0" style="margin-left: 25px !important;">
         <div class="flex-container flex-center">
-            <img id="weatherImage" src="" alt="Weather Image" width="71px" height="71px">
+            <img id="weatherImage" src="" alt="Weather Image" width="70px" height="70px">
             <span class="text-medium-big color-4 m-0">${data.current.temperature_2m}${data.current_units.temperature_2m}</span><br>
         </div>
         <div class="flex-container flex-center">
