@@ -1,13 +1,15 @@
 /**
  * WEATHER PLUGIN FOR FM-DX WEBSERVER
- * Author: NoobishSVK
+ * Author: NoobishSVK, minor changes by Bkram
  * Used API: https://open-meteo.com/
  * Icons: OpenWeatherMap
  */
 
 const LAT = localStorage.getItem('qthLatitude');
 const LON = localStorage.getItem('qthLongitude');
-const REQUEST_URL = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,relative_humidity_2m,is_day,weather_code,pressure_msl,wind_speed_10m,,wind_direction_10m`;
+const REQUEST_URL = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,relative_humidity_2m,is_day,weather_code,pressure_msl,wind_speed_10m,wind_direction_10m`;
+let lastUpdate;
+
 const weatherData = {
 	"0": {
 		"day": {
@@ -183,7 +185,7 @@ const weatherData = {
 		"day": {
 			"description": "Snow",
 			"image": "http://openweathermap.org/img/wn/13d@2x.png"
-			},
+		},
 		"night": {
 			"description": "Snow",
 			"image": "http://openweathermap.org/img/wn/13n@2x.png"
@@ -291,33 +293,48 @@ const weatherData = {
 	}
 };
 
-$( document ).ready(function() {
-    getWeatherData();
+$(document).ready(function () {
+	getWeatherData();
 });
 
 function getWeatherData() {
-    $.ajax({
-        url: REQUEST_URL,
-        method: 'GET',
-        dataType: 'json',
-        success: function(data) {
-            console.log(data); // For demonstration purposes, logging the data to console
-            initializeWeatherData(data);
-        },
-        error: function(xhr, status, error) {
-        // If there's an error with the request, handle it here
-            console.error('Error fetching data:', error);
-        }
-    });
+	$.ajax({
+		url: REQUEST_URL,
+		method: 'GET',
+		dataType: 'json',
+		success: function (data) {
+			console.log(data); // Log the data for debugging
+			if (data && data.current) { // Check if data and current exist
+				// Remove existing weather panel if it exists
+				// $('#weatherPanel').remove();
+				initializeWeatherData(data);
+			} else {
+				console.error('Unexpected data structure:', data);
+			}
+		},
+		error: function (xhr, status, error) {
+			console.error('Error fetching data:', error);
+		}
+	});
 }
 
+function degreesToDirection(degrees) {
+	const directions = ['North', 'North-East', 'East', 'South-East', 'South', 'South-West', 'West', 'North-West', 'North'];
+	const index = Math.round((degrees % 360) / 45);
+	return directions[index];
+}
 function initializeWeatherData(data) {
-    const windDirection = degreesToDirection(data.current.wind_direction_10m);
+	if (!data.current) return; // Safeguard against missing current data
 
-    let $serverInfoContainer = $('#tuner-name').parent();
-    let emptyPanel = $('<div class="panel-33"></div>');
-    let weatherPanel = $(`
-    <div class="panel-33 no-bg hide-phone m-0" style="margin-left: 25px !important;">
+	const windDirection = degreesToDirection(data.current.wind_direction_10m);
+	const lastUpdate = new Date().toLocaleString('en-US', {
+		hour: 'numeric',
+		minute: 'numeric',
+		second: 'numeric',
+		hour12: true
+	});
+
+	const createWeatherTable = () => `
         <div class="flex-container flex-center">
             <img id="weatherImage" src="" alt="Weather Image" width="70px" height="70px">
             <span class="text-medium-big color-4 m-0">${data.current.temperature_2m}${data.current_units.temperature_2m}</span><br>
@@ -332,44 +349,59 @@ function initializeWeatherData(data) {
                     <td class="text-bold">Wind:</td>
                     <td>${data.current.wind_speed_10m} ${data.current_units.wind_speed_10m} <span class="text-gray text-small">(${windDirection})</span></td>
                 </tr>
+                <tr>
+                    <td class="text-bold">Last Update:</td>
+                    <td>${lastUpdate}</td>
+                </tr>
             </table>
         </div>
-    </div>
+    `;
+
+	let $serverInfoContainer = $('#tuner-name').parent();
+	let weatherPanel = $(`
+        <div id="weatherPanel" class="panel-33 no-bg hide-phone m-0" style="margin-left: 25px !important;">
+            ${createWeatherTable()}
+        </div>
     `);
 
-    let newParent = $('<div class="flex-container flex-center"></div>');
-    newParent.insertBefore($serverInfoContainer);
-    newParent.append($serverInfoContainer, weatherPanel);
-    $serverInfoContainer.removeClass('panel-100').addClass('panel-75').css('padding-left', '20px');
+	if (document.getElementById("weatherPanel")) {
+		$('#weatherPanel').html(createWeatherTable());
+	} else {
+		let newParent = $('<div class="flex-container flex-center"></div>');
+		newParent.insertBefore($serverInfoContainer);
+		newParent.append($serverInfoContainer, weatherPanel);
+		$serverInfoContainer.removeClass('panel-100').addClass('panel-75').css('padding-left', '20px');
+	}
 
 	if ($(window).width() < 768) {
-		$serverInfoContainer.attr('style', 'text-align: center !important; padding: 0 !important; width: 100% !important;margin-bottom: 0 !important');
-    }
+		$serverInfoContainer.attr('style', 'text-align: center !important; padding: 0 !important; width: 100% !important; margin-bottom: 0 !important');
+	}
 
-    // Determine if it's day or night
-    function getImageUrl(weatherCode) {
-        // Convert isDay to a number for comparison
-        const isDayNumeric = parseInt(data.current.is_day); 
-    
-        if (weatherCode in weatherData) {
-            const timeOfDay = isDayNumeric === 1 ? 'day' : 'night'; // Determine the time of day
-            if (timeOfDay in weatherData[weatherCode]) {
-                return weatherData[weatherCode][timeOfDay].image;
-            }
-        }
-    }
-    
-
-    // Get the image URL
-    const imageUrl = getImageUrl(data.current.weather_code);
-
-    // Set the image source
-    $('#weatherImage').attr('src', imageUrl);
+	const imageUrl = getImageUrl(data);
+	$('#weatherImage').attr('src', imageUrl);
 }
 
-
-function degreesToDirection(degrees) {
-    const directions = ['North', 'North-East', 'East', 'South-East', 'South', 'South-West', 'West', 'North-West', 'North'];
-    const index = Math.round((degrees % 360) / 45);
-    return directions[index];
+function getImageUrl(data) {
+	const weatherCode = data.current.weather_code;
+	const isDayNumeric = parseInt(data.current.is_day);
+	if (weatherCode in weatherData) {
+		const timeOfDay = isDayNumeric === 1 ? 'day' : 'night';
+		if (timeOfDay in weatherData[weatherCode]) {
+			return weatherData[weatherCode][timeOfDay].image;
+		}
+	}
+	return ''; // Return an empty string if no valid image found
 }
+
+function reloadWeatherData() {
+	getWeatherData();
+	lastUpdate = new Date().toLocaleString('en-US', {
+		hour: 'numeric',
+		minute: 'numeric',
+		second: 'numeric',
+		hour12: true
+	});
+}
+
+// Set an interval to reload weather data every 10 minutes (600000 milliseconds)
+setInterval(reloadWeatherData, 600000);
