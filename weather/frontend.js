@@ -301,11 +301,10 @@ function getWeatherData() {
         method: 'GET',
         dataType: 'json',
         success: function(data) {
-            console.log(data); // For demonstration purposes, logging the data to console
+            //console.log(data); // For demonstration purposes, logging the data to console
             initializeWeatherData(data);
         },
         error: function(xhr, status, error) {
-        // If there's an error with the request, handle it here
             console.error('Error fetching data:', error);
         }
     });
@@ -314,33 +313,26 @@ function getWeatherData() {
 function initializeWeatherData(data) {
     const windDirection = degreesToDirection(data.current.wind_direction_10m);
 
-    let $serverInfoContainer = $('#tuner-name').parent();
-    let emptyPanel = $('<div class="panel-33"></div>');
+	let tooltipContent = `<table class='text-left'>
+                <tr>
+                    <td class='text-bold' style='padding-right: 20px;'>Pressure:</td>
+                    <td>${data.current.pressure_msl} ${data.current_units.pressure_msl} <span class='text-gray text-small'>(${data.current.relative_humidity_2m}% humidity)</span></td>
+                </tr>
+                <tr>
+                    <td class='text-bold'>Wind:</td>
+                    <td>${data.current.wind_speed_10m} ${data.current_units.wind_speed_10m} <span class='text-gray text-small'>(${windDirection})</span></td>
+                </tr>
+            </table>`;
+    let $serverInfoContainer = $('.dashboard-panel .panel-100-real .dashboard-panel-plugin-content');
     let weatherPanel = $(`
-    <div class="panel-33 no-bg hide-phone m-0" style="margin-left: 25px !important;">
-        <div class="flex-container flex-center">
-            <img id="weatherImage" src="" alt="Weather Image" width="70px" height="70px">
-            <span class="text-medium-big color-4 m-0">${data.current.temperature_2m}${data.current_units.temperature_2m}</span><br>
+        <div class="flex-container flex-center tooltip hide-phone hover-brighten br-15" style="height: 48px;padding-right: 10px;" data-tooltip="${tooltipContent}" data-tooltip-placement="bottom">
+            <img id="weatherImage" src="" alt="Weather Image" width="48px" height="48px">
+            <span class="color-4 m-0" style="font-size: 32px;padding-bottom:2px;font-weight: 100;">${data.current.temperature_2m}${data.current_units.temperature_2m}</span><br>
         </div>
-        <div class="flex-container flex-center">
-            <table class="text-left">
-                <tr>
-                    <td class="text-bold" style="padding-right: 20px;">Pressure:</td>
-                    <td>${data.current.pressure_msl} ${data.current_units.pressure_msl} <span class="text-gray text-small">(${data.current.relative_humidity_2m}% humidity)</span></td>
-                </tr>
-                <tr>
-                    <td class="text-bold">Wind:</td>
-                    <td>${data.current.wind_speed_10m} ${data.current_units.wind_speed_10m} <span class="text-gray text-small">(${windDirection})</span></td>
-                </tr>
-            </table>
-        </div>
-    </div>
     `);
 
-    let newParent = $('<div class="flex-container flex-center"></div>');
-    newParent.insertBefore($serverInfoContainer);
-    newParent.append($serverInfoContainer, weatherPanel);
-    $serverInfoContainer.removeClass('panel-100').addClass('panel-75').css('padding-left', '20px');
+    $serverInfoContainer.prepend(weatherPanel);
+	initTooltips(weatherPanel);
 
 	if ($(window).width() < 768) {
 		$serverInfoContainer.attr('style', 'text-align: center !important; padding: 0 !important; width: 100% !important;margin-bottom: 0 !important');
