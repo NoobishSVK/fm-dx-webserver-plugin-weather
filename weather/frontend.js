@@ -332,7 +332,9 @@ function initializeWeatherData(data) {
     `);
 
     $serverInfoContainer.prepend(weatherPanel);
-	initTooltips(weatherPanel);
+	setTimeout(function() {
+		initTooltips(weatherPanel);
+	}, 1000);
 
 	if ($(window).width() < 768) {
 		$serverInfoContainer.attr('style', 'text-align: center !important; padding: 0 !important; width: 100% !important;margin-bottom: 0 !important');
