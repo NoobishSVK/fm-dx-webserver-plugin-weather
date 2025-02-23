@@ -7,7 +7,7 @@
 
 const LAT = localStorage.getItem('qthLatitude');
 const LON = localStorage.getItem('qthLongitude');
-const REQUEST_URL = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,relative_humidity_2m,is_day,weather_code,pressure_msl,wind_speed_10m,,wind_direction_10m`;
+const REQUEST_URL = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,relative_humidity_2m,is_day,weather_code,pressure_msl,wind_speed_10m,wind_direction_10m${localStorage.getItem('imperialUnits') === 'true' ? '&temperature_unit=fahrenheit&wind_speed_unit=mph' : ''}`;
 const weatherData = {
 	"0": {
 		"day": {
@@ -311,6 +311,8 @@ function getWeatherData() {
 }
 
 function initializeWeatherData(data) {
+    document.getElementById('weather-plugin')?.remove();
+
     const windDirection = degreesToDirection(data.current.wind_direction_10m);
 
 	let tooltipContent = `<table class='text-left'>
@@ -325,7 +327,7 @@ function initializeWeatherData(data) {
             </table>`;
     let $serverInfoContainer = $('.dashboard-panel .panel-100-real .dashboard-panel-plugin-content');
     let weatherPanel = $(`
-        <div class="flex-container flex-center tooltip hide-phone hover-brighten br-15" style="height: 48px;padding-right: 10px;" data-tooltip="${tooltipContent}" data-tooltip-placement="bottom">
+        <div id="weather-plugin" class="flex-container flex-center tooltip hide-phone hover-brighten br-15" style="height: 48px;padding-right: 10px;" data-tooltip="${tooltipContent}" data-tooltip-placement="bottom">
             <img id="weatherImage" src="" alt="Weather Image" width="48px" height="48px">
             <span class="color-4 m-0" style="font-size: 32px;padding-bottom:2px;font-weight: 100;">${data.current.temperature_2m}${data.current_units.temperature_2m}</span><br>
         </div>
@@ -367,3 +369,16 @@ function degreesToDirection(degrees) {
     const index = Math.round((degrees % 360) / 45);
     return directions[index];
 }
+
+function scheduleNextUpdate() {
+    const now = new Date();
+    const minutes = now.getMinutes();
+    const initialDelay = (15 - (minutes % 15)) * 60 * 1000;
+
+    setTimeout(() => {
+        getWeatherData();
+        setInterval(getWeatherData, 15 * 60 * 1000);
+    }, initialDelay);
+}
+
+scheduleNextUpdate();
