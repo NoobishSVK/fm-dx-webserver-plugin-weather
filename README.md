@@ -1,8 +1,7 @@
-# FM-DX Webserver Weather Plugin
-Plugin that shows weather, suitable for **FM-DX Webserver 1.2.0** or newer.
+# FM-DX Webserver Server List Plugin
+Plugin that shows a handy server-list in the description panel. Suitable for FM-DX Webserver 1.3.6 or newer. 
 
-![0B1jek4](https://github.com/NoobishSVK/fm-dx-webserver-plugin-weather/assets/17816750/87740cf5-c7ec-4aa8-b7c8-e0fa23668ec5)
-
+<img alt="Server list preview" src="https://i.imgur.com/1l3Nvsd.png">
 
 ## Installation:
 1. Copy the **weather.js** file and the **weather** folder to your FM-DX Webserver's **plugins** folder
